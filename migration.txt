@@ -1,12 +1,12 @@
 ---------------------------------------------------------------------------------------------------------------------
 This is the script I wrote for a data migration. The issue I identified was that we had a user table (plastic)
-that had a column for a location (wolf). Of course we needed a real database relation so once the new tables were
-built I wrote this script to migrate the locations and relations to the new tables. The tricky part was that there
-was no validation on the location names in the original user table so there were many duplicates with different case
-and spelling. In the case where all locations were the same case and spelling it was a normal move, from individual
-user columns to a single location record with many to one relations. In the case of the same spelling but different
-case the rule was to just make it lower case and insert it. In the case of spelling they simply were different
-records and we agreed that the user would clean that as necessary.
+that had a simple non-relational text column for a location (wolf). Of course we needed a real database relation so
+once the new tables were built I wrote this script to migrate the locations and relations to the new tables. The
+tricky part was that there was no validation on the location names in the original user table so there were many
+duplicates with different case and spelling. In the case where all locations were the same case and spelling it was
+a normal move, from individual user columns to a single location record with many to one relations. In the case of
+the same spelling but different case the rule was to just make it lower case and insert it. In the case of spelling
+they simply were different records and we agreed that the user would clean that as necessary.
 
 One could argue that the second temp table is not necessary but I wanted to be able to keep the different states of
 the data for comparison just in case.

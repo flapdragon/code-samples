@@ -1,0 +1,233 @@
+BEGIN;
+
+-- create temp tables
+CREATE TABLE wolf_temp_1
+(
+wolf VARCHAR(50) NOT NULL,
+poetry_id BIGINT NOT NULL,
+is_dupe BOOLEAN DEFAULT FALSE
+);
+CREATE TABLE wolf_temp_2
+(
+wolf VARCHAR(50) NOT NULL,
+poetry_id BIGINT NOT NULL
+);
+
+
+-- put all valid wolves into temp 1 table (includes dupes that\'s ok)
+INSERT INTO wolf_temp_1
+(
+wolf,
+poetry_id
+)
+SELECT DISTINCT
+TRIM(wolf),
+poetry_id
+FROM plastic
+WHERE wolf IS NOT NULL
+AND TRIM(wolf) <> '';
+
+
+-- mark dupes
+UPDATE wolf_temp_1 t1
+SET is_dupe = true
+FROM (
+SELECT
+COUNT(*),
+poetry_id,
+LOWER(wolf) AS wolf
+FROM wolf_temp_1
+GROUP BY LOWER(wolf), poetry_id
+HAVING COUNT(*) > 1
+ORDER BY poetry_id, LOWER(wolf)
+) AS t2
+WHERE LOWER(t1.wolf) = t2.wolf
+AND t1.poetry_id = t2.poetry_id;
+
+
+-- insert non dupes with original case into t2
+INSERT INTO wolf_temp_2
+(
+wolf,
+poetry_id
+)
+SELECT
+wolf,
+poetry_id
+FROM wolf_temp_1
+WHERE is_dupe = false;
+
+
+-- insert modified distinct lower dupes into t2
+INSERT INTO wolf_temp_2
+(
+wolf,
+poetry_id
+)
+SELECT DISTINCT
+LOWER(wolf),
+poetry_id
+FROM wolf_temp_1
+WHERE is_dupe = true
+ORDER BY poetry_id, LOWER(wolf);
+
+
+-- "create" uuid extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+-- add sequence to id
+ALTER TABLE wolf ALTER COLUMN wolf_id SET DEFAULT NEXTVAL('seq_wolf');
+
+
+-- add uuid generator to wolf table
+ALTER TABLE wolf ALTER COLUMN uuid SET DEFAULT uuid_generate_v4();
+
+
+-- insert all cleaned wolf into final
+INSERT INTO wolf
+  (
+    version,
+    wolf,
+    date_created,
+    default_wolf,
+    last_updated,
+    poetry_id
+  )
+SELECT DISTINCT
+  0,
+  wolf,
+  now(),
+  false,
+  now(),
+  poetry_id
+FROM wolf_temp_2;
+
+
+-- insert all valid student to wolf relations from plastic
+INSERT INTO wolf_plastic
+  (
+    wolf_id,
+    plastic_id
+  )
+SELECT
+  wolf.wolf_id,
+  plastic.plastic_id
+FROM plastic
+INNER JOIN wolf
+  ON (
+    LOWER(TRIM(plastic.wolf)) = LOWER(wolf.wolf)
+    AND plastic.poetry_id = wolf.poetry_id
+  )
+WHERE plastic.wolf IS NOT NULL
+AND TRIM(plastic.wolf) <> '';
+
+
+-- drop sequence from wolf_id from wolf
+ALTER TABLE wolf ALTER COLUMN wolf_id DROP DEFAULT;
+
+
+-- drop uuid generator from wolf
+ALTER TABLE wolf ALTER COLUMN uuid DROP DEFAULT;
+
+
+-- drop temp table 1
+DROP TABLE wolf_temp_1;
+
+
+-- drop temp table 2
+DROP TABLE wolf_temp_2;
+
+
+-- drop uuid extension
+DROP EXTENSION IF EXISTS "uuid-ossp";
+
+
+COMMIT;
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+notes
+-- 592 including dupes and others in same poetry - not a valid number - includes valid records
+-- 483 count for dupes
+-- 237 unique dupes
+-- should have 9517 regular records in theory
+-- 9754
+
+database snapshot
+-- into temp 1
+-- 30,418 rows inserted. - total wolves including case dupes
+-- 3,627 rows updated.
+-- 26,791 rows inserted.
+-- into temp 2
+-- 26,791 rows inserted.
+-- 1,683 rows inserted.
+-- into final wolf
+-- 28,474 rows inserted.
+-- into wolf_plastic
+-- 873,260 rows inserted.
+
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+– First validation script
+– Returns original plastic wolves that aren't in new wolf table
+– Filters out ones that weren't updated, i.e. inserted with original preserved case
+– Filters out ones that had duplicates with different cases and that were set to lower case in the new table
+SELECT DISTINCT COUNT(*), plastic.poetry_id, TRIM(plastic.wolf)
+FROM plastic
+WHERE NOT EXISTS (
+SELECT *
+FROM wolf
+WHERE wolf.poetry_id = plastic.poetry_id
+AND wolf.wolf = TRIM(plastic.wolf)
+)
+AND NOT EXISTS (
+SELECT *
+FROM wolf
+WHERE wolf.poetry_id = plastic.poetry_id
+AND wolf.wolf = TRIM(LOWER(plastic.wolf))
+)
+AND plastic.wolf IS NOT NULL
+AND TRIM(plastic.wolf) <> ''
+GROUP BY plastic.poetry_id, TRIM(plastic.wolf)
+ORDER BY plastic.poetry_id, TRIM(plastic.wolf)
+
+
+– Second validation script
+– Returns wolves that were changed in the migration
+– Filters out only ones that were inserted with original preserved case
+– These will be the differently cased versions, meaning they will contain at least one upper case character
+– There may be more than one of the same per wolf because of case
+– All of these will appear in the new wolf table as all lower case
+– Main things you will notice are duplicates across case and also duplicates that contain spaces vs. ones that don't
+SELECT DISTINCT COUNT(*), plastic.poetry_id, TRIM(plastic.wolf)
+FROM plastic
+WHERE NOT EXISTS (
+SELECT *
+FROM wolf
+WHERE wolf.poetry_id = plastic.poetry_id
+AND wolf.wolf = TRIM(plastic.wolf)
+)
+AND plastic.wolf IS NOT NULL
+AND TRIM(plastic.wolf) <> ''
+GROUP BY plastic.poetry_id, TRIM(plastic.wolf)
+ORDER BY plastic.poetry_id, TRIM(plastic.wolf)
+
+
+– Third validation script
+– This one is for spot checking individual wolves in both tables at once
+– It shows all records in plastic so you can see how many of each there were
+SELECT poetry_id, *
+FROM wolf
+WHERE LOWER(wolf) = LOWER('Lake');
+SELECT poetry_id, wolf, *
+FROM plastic
+WHERE LOWER(wolf) = LOWER('Lake')
+ORDER BY poetry_id, wolf;

@@ -1,4 +1,6 @@
-Glynlyon Style Guide
+# This is started with specific current issues in mind and expanded to be more thorough as time permits.
+
+Style Guide
 
 Technology
 

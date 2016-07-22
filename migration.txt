@@ -14,6 +14,14 @@ the data for comparison just in case.
 Also, the back end account used to access the database didn't have permissions to run extension commands so we had to
 work with the admins to run that outside of the script. In the end they chose to keep the extension.
 
+Also I guess I should point out that I'm adding things like the uuid (and the extension) as well as the sequence and
+applying them to the location and relation tables because the company I wrote this at firmly believes in doing
+everything with the back end because that's what they know. So whatever the back end can do it does: database stuff,
+environment stuff, front end stuff. It's the famous problem of back end developers who don't know SQL and solve the
+problem with the back end - iterative queries within queries and database connections that get backed up. The total
+run time of my script averages about 1.66 seconds. The back end version, even though it wasn't complete, literally
+crashed the server.
+
 This first part is the actual script. All names have been changed.
     location (table name and column name, they are the same, against my advice) = wolf,
     user = plastic,

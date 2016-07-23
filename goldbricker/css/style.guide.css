@@ -1,0 +1,25 @@
+/*http://stackoverflow.com/questions/3245141/using-otf-fonts-on-web-browsers*/
+/*https://www.fontsquirrel.com/*/
+
+@font-face {
+    font-family: Quicksand;
+    src: url("../fonts/quicksand/Quicksand-Regular.otf") format("opentype");
+}
+
+/*@font-face {
+font-family: GraublauWeb;
+font-weight: bold;
+src: url("path-to-the-font-file/GraublauWebBold.otf") format("opentype");
+}*/
+
+body {
+    font-family: 'Quicksand', serif;
+}
+
+pre.code-sample {
+    margin-left: 20px;
+}
+
+a {
+    color: #9A52B3;
+}

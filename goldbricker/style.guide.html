@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Style Guide</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico"> <!-- TODO need icon -->
+		<link rel="stylesheet" type="text/css" href="css/style.guide.css">
+</head>
+<body>
+
+<h1>Style Guide</h1>
+
+<p>This is started with specific current issues in mind and expanded to be more thorough as time permits. As you read through this please feel free to augment it.</p>
+
+<section>
+<h2>Technology</h2>
+
+<h2>Database</h2>
+<p>Data migrations should be done in SQL by the database when possible. The performance will be much faster than that of a back end server trying to do the same thing. In the case of Grails migrations, we should use the sql option and all database scripts should be included in there, including transactional database rollbacks.</p>
+
+<h2>Back End</h2>
+
+<h2>Front End</h2>
+</section>
+
+<section>
+<h2>Architecture</h2>
+
+<p>Whenever possible you should only include minified versions of CSS and JavaScript files in production, especially from 3rd party libraries. Your own application specific code should also always be minified and or bundled in some way in production. There is a significant performance boost in doing this.</p>
+
+<p>We should avoid iFrames at all cost.</p>
+
+<p>All HTML elements that have IDs should have unique IDs.</p>
+
+<p>Classes should always be preferred over inline styles. Inline CSS should be avoided.</p>
+</section>
+
+<section>
+<h2>Naming Conventions</h2>
+
+<p>JavaScript variables should use camel case and avoid using dashes and underscores as separators.</p>
+<pre class="code-sample">var variableName;</pre>
+
+<p>The underscore should only be used at the beginning of the variable name to denote that it is private inside a closure. The only exception is for global variables.</p>
+<pre class="code-sample">function thisFunction() {
+    var _encapsulatedVariable;
+}
+</pre>
+
+<p>Global JavaScript variables should be in all caps with underscores as separators.</p>
+<pre class="code-sample">VARIABLE_NAME</pre>
+
+<p>HTML and CSS names should be all lower case and use dashes as separators.</p>
+<pre class="code-sample">variable-name, button-add-campus, button-large</pre>
+</section>
+
+<section>
+<h2>jQuery</h2>
+
+The id selector is the preferred way (and preferred means the most performant, scalable method) to select a single element, when possible.
+<pre class="code-sample">$('#element-id')</pre>
+
+To select multiple similar elements (all LIs of a UL, all radio buttons, etc.) the preferred method is to add a unique class to all of those elements and select them that way.
+<pre class="code-sample">$('.element-class')</pre>
+
+Find should only be used inside of an existing context, and not for its own sake. That is, if you are working inside a dialog that already has been declared as a jQuery variable, then find would be acceptable within that context to select an element, rather than traversing the entire DOM, especially for larger pages.
+<pre class="code-sample">$('#parent-element').find('#child-element')</pre>
+</section>
+
+<section>
+<h2>Documentation</h2>
+
+<p>Always document your JavaScript. Use the JS Doc format.</p>
+</section>
+
+<section>
+<h2>User Interface</h2>
+
+<h2>Modals / Pop-ups</h2>
+<p>For form validation or other pages that require interaction from the user that the page then provides feedback on we generally add all messages into one modal so that the user only has one to deal with. The exception would be for extremely important messages that truly need to be in their own modal, but these are definitely the exception and not the rule. I cannot think of one example in our site where this is necessary.</p>
+</section>
+
+<section>
+<h2>Reference</h2>
+
+<p>Douglas Crockford, <a href="http://javascript.crockford.com/code.html">http://javascript.crockford.com/code.html</a></p>
+<p>Google Style Guides, <a href="https://github.com/google/styleguide">https://github.com/google/styleguide</a></p>
+<p>JS Underscore, <a href="http://stackoverflow.com/questions/4146124/naming-formatting-standard-for-global-variables">http://stackoverflow.com/questions/4146124/naming-formatting-standard-for-global-variables</a></p>
+<p>JS Doc,<a href="http://usejsdoc.org/">http://usejsdoc.org/</a></p>
+</section>
+
+</body>
+</html>

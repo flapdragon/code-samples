@@ -1,0 +1,22 @@
+{
+  "name": "code-samples",
+  "version": "1.0.0",
+  "description": "These are actual code samples from actual jobs I have had. These are in all cases 100% my code. In some instances they are technically beautiful and others they have inner beauty that solves a business or process problem. I have renamed all of the variables so some times reading them can be strange as the \"descriptive variable name\" rule is broken.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flapdragon/code-samples.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flapdragon/code-samples/issues"
+  },
+  "homepage": "https://github.com/flapdragon/code-samples#readme",
+  "devDependencies": {
+    "http-server": "^0.9.0"
+  }
+}
